@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>童盟云 · 家校社协同托管</title>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 圆润专业字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f5e6e6; /* 柔和红灰 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fffcfc;
+            box-shadow: 0 25px 50px -12px rgba(229, 57, 53, 0.3);
+            border-radius: 40px 40px 0 0;
+            overflow: hidden;
+            position: relative;
+            height: 820px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 页面容器 */
+        .page {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 75px;
+            scrollbar-width: thin;
+            scrollbar-color: #E53935 #ffe0e0;
+        }
+        .page::-webkit-scrollbar {
+            width: 4px;
+        }
+        .page::-webkit-scrollbar-track {
+            background: #ffe0e0;
+        }
+        .page::-webkit-scrollbar-thumb {
+            background: #E53935;
+            border-radius: 10px;
+        }
+        .page.active {
+            display: flex;
+        }
+
+        /* 主色 */
+        .primary-bg {
+            background: linear-gradient(145deg, #E53935, #D32F2F);
+        }
+        .primary-text {
+            color: #E53935;
+        }
+        .primary-border {
+            border-color: #E53935;
+        }
+
+        /* 头部 */
+        .app-header {
+            padding: 20px 20px 30px;
+            color: white;
+            background: linear-gradient(135deg, #E53935, #C62828);
+            border-radius: 0 0 40px 40px;
+            box-shadow: 0 8px 20px rgba(229, 57, 53, 0.25);
+            position: relative;
+        }
+        .app-header .greeting {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .app-header .greeting i {
+            font-size: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            padding: 6px;
+        }
+        .app-header .sub {
+            font-size: 15px;
+            opacity: 0.9;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .app-header .icons {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 18px;
+            font-size: 22px;
+        }
+
+        /* 搜索条 */
+        .search-box {
+            background-color: white;
+            margin: -20px 20px 20px;
+            padding: 14px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            border: 1px solid #ffd6d6;
+            font-size: 15px;
+            color: #999;
+        }
+        .search-box i {
+            color: #E53935;
+            font-size: 18px;
+        }
+
+        /* 分类胶囊 */
+        .categories {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        .category {
+            background-color: #ffefef;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #E53935;
+            border: 1px solid #ffd6d6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .category i { font-size: 16px; }
+        .category.active {
+            background: #E53935;
+            color: white;
+            border-color: #E53935;
+        }
+
+        /* 卡片 */
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 18px;
+            margin: 0 20px 16px;
+            box-shadow: 0 10px 25px -8px rgba(229, 57, 53, 0.15);
+            border: 1px solid #ffe6e6;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 0 5px;
+        }
+        .card-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #E53935;
+            letter-spacing: -0.3px;
+        }
+        .card-header a {
+            color: #FF8A5C;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* 社区条目 */
+        .community-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+            align-items: center;
+            cursor: pointer;
+        }
+        .community-avatar {
+            width: 72px;
+            height: 72px;
+            background: #ffefef;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #E53935;
+            border: 2px solid #ffe0e0;
+            flex-shrink: 0;
+        }
+        .community-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .community-info p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            background: #ffefef;
+            color: #E53935;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        /* 课程条目 */
+        .course-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #ffefef;
+        }
+        .course-item:last-child { border-bottom: none; }
+        .course-info h4 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .course-info .time {
+            font-size: 12px;
+            color: #E53935;
+            background: #ffefef;
+            padding: 4px 14px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+        .btn-small {
+            background: #FFB74D;
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px #ffb74d80;
+        }
+        .btn-small-outline {
+            background: white;
+            border: 2px solid #E53935;
+            color: #E53935;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 10px;
+            border-top: 2px solid #ffefef;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.02);
+        }
+        .nav-item {
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+        .nav-item.active {
+            color: #E53935;
+            font-weight: 600;
+        }
+
+        /* 详情头部 */
+        .detail-header {
+            background: linear-gradient(135deg, #E53935, #C62828);
+            padding: 18px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-radius: 0 0 30px 30px;
+        }
+        .detail-header i {
+            font-size: 26px;
+            cursor: pointer;
+        }
+        .detail-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* 评论区域 */
+        .comment-section {
+            margin-top: 20px;
+        }
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            background: #ffefef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #E53935;
+            font-weight: 700;
+        }
+        .comment-content {
+            flex: 1;
+        }
+        .comment-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .comment-time {
+            font-size: 11px;
+            color: #999;
+            margin-left: 8px;
+        }
+        .comment-text {
+            font-size: 14px;
+            margin: 4px 0;
+            color: #333;
+        }
+        .comment-reply {
+            font-size: 13px;
+            color: #E53935;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .comment-input {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            align-items: center;
+            background: #f9f9f9;
+            border-radius: 50px;
+            padding: 8px 16px;
+        }
+        .comment-input input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 14px;
+            outline: none;
+        }
+        .comment-input button {
+            background: #E53935;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 22px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #E53935;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #ffdede;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: #FFB74D; }
+        .btn-large {
+            background: #E53935;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px #e5393580;
+        }
+
+        /* 签到列表 */
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #ffefef;
+        }
+        .student-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sign-btn {
+            background: #ffefef;
+            color: #E53935;
+            border: none;
+            padding: 8px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .sign-btn.signed {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        /* 徽章 */
+        .badge {
+            background: #FFB74D;
+            color: white;
+            font-size: 12px;
+            padding: 4px 14px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 0 20px 20px;
+        }
+        .grid-item {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 10px;
+            text-align: center;
+            border: 1px solid #ffe0e0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .grid-item i {
+            font-size: 36px;
+            color: #E53935;
+            margin-bottom: 8px;
+        }
+        .grid-item span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* IP元素 */
+        .ip-character {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+
+    <!-- 页面1: 家长端首页 -->
+    <div class="page active" id="page-home">
+        <div class="app-header">
+            <div class="greeting">
+                <i class="fas fa-smile"></i> 下午好, 乐乐妈妈
+            </div>
+            <div class="sub"><i class="fas fa-map-marker-alt"></i> 南湖街道 · 宝安社区</div>
+            <div class="icons">
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+        <div class="search-box">
+            <i class="fas fa-search"></i> 搜社区、课程或活动...
+        </div>
+        <div class="categories">
+            <span class="category active"><i class="fas fa-home"></i> 附近</span>
+            <span class="category"><i class="fas fa-fire"></i> 热门</span>
+            <span class="category"><i class="fas fa-clock"></i> 即将开始</span>
+            <span class="category"><i class="fas fa-star"></i> 收藏</span>
+        </div>
+        <!-- 童小盟推荐 -->
+        <div class="card" style="background: linear-gradient(135deg, #FFF3E0, #FFE0E0); border: none;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="background: #E53935; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px;">🧸</div>
+                <div>
+                    <h3 style="color: #E53935;">童小盟推荐</h3>
+                    <p style="color: #b71c1c;">210+社区 · 5天服务 · 21支小组</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-header">
+            <h3>✨ 热门托管点</h3>
+            <a href="#" onclick="showPage('page-community-list')">全部</a>
+        </div>
+        <div class="community-row" style="margin: 0 20px;" onclick="showPage('page-community-detail')">
+            <div class="community-avatar">🏫</div>
+            <div class="community-info">
+                <h4>琴台青少年空间</h4>
+                <p><i class="fas fa-location-dot"></i> 建桥街道毛家堤77号 · 1.2km</p>
+                <div class="tags"><span class="tag">特色课程</span><span class="tag">科学实验</span></div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#E53935;"></i>
+        </div>
+        <div class="community-row" style="margin: 0 20px;" onclick="showPage('page-community-detail')">
+            <div class="community-avatar">🏘️</div>
+            <div class="community-info">
+                <h4>青和居青少年空间</h4>
+                <p><i class="fas fa-location-dot"></i> 工人村街道青和居社区 · 2.5km</p>
+                <div class="tags"><span class="tag">非遗手工</span><span class="tag">红色教育</span></div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#E53935;"></i>
+        </div>
+
+        <div class="card-header">
+            <h3>📚 精选课程</h3>
+            <a href="#" onclick="showPage('page-course-list')">更多</a>
+        </div>
+        <div class="card" onclick="showPage('page-course-detail')">
+            <div style="display: flex; gap: 15px;">
+                <div style="background: #ffefef; width: 64px; height: 64px; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 32px;">🌾</div>
+                <div>
+                    <h4>遇“稻”一粒米</h4>
+                    <span class="time">2月2日-6日 10:30</span>
+                    <p style="font-size: 13px; color: #666; margin-top: 5px;">文明共生 · 劳动教育</p>
+                </div>
+            </div>
+        </div>
+        <div class="card" onclick="showPage('page-course-detail')">
+            <div style="display: flex; gap: 15px;">
+                <div style="background: #ffefef; width: 64px; height: 64px; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 32px;">🍡</div>
+                <div>
+                    <h4>榴光溢彩 籽籽同心</h4>
+                    <span class="time">铸牢中华民族共同体意识</span>
+                    <p style="font-size: 13px; color: #666; margin-top: 5px;">民族融合 · 文化传承</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面2: 社区详情 (含评论) -->
+    <div class="page" id="page-community-detail">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>琴台青少年空间</h2>
+        </div>
+        <div style="padding: 20px;">
+            <img src="#" style="width:100%; height:180px; background: #ffcdd2; border-radius: 30px; display: flex; align-items: center; justify-content: center; color: #E53935; font-size: 50px;" alt="社区照片">🏫
+            <div style="display: flex; gap: 10px; margin: 15px 0;">
+                <span class="badge">建桥街道</span>
+                <span class="badge">距您1.2km</span>
+                <span class="badge">可托管</span>
+            </div>
+            <p><i class="fas fa-map-pin" style="color:#E53935;"></i> 建桥街道毛家堤77号一楼</p>
+            <p><i class="fas fa-phone-alt" style="color:#E53935;"></i> 027-84771916 高峰</p>
+
+            <h3 style="margin: 25px 0 10px; color:#E53935;">📅 寒假课程</h3>
+            <div class="course-item">
+                <div><h4>遇“稻”一粒米</h4><span class="time">2月2日 10:30-12:00</span></div>
+                <button class="btn-small" onclick="showPage('page-signup')">报名</button>
+            </div>
+            <div class="course-item">
+                <div><h4>非遗剪纸</h4><span class="time">2月2日 14:30-16:00</span></div>
+                <button class="btn-small" onclick="showPage('page-signup')">报名</button>
+            </div>
+            <div class="course-item">
+                <div><h4>空气炮实验</h4><span class="time">2月3日 10:30-12:00</span></div>
+                <button class="btn-small" onclick="showPage('page-signup')">报名</button>
+            </div>
+            <div class="course-item">
+                <div><h4>榴光溢彩 籽籽同心</h4><span class="time">2月4日 14:30-16:00</span></div>
+                <button class="btn-small" onclick="showPage('page-signup')">报名</button>
+            </div>
+
+            <!-- 评论区域 -->
+            <h3 style="margin: 30px 0 15px; color:#E53935;">💬 家长评论 (15)</h3>
+            <div class="comment-section">
+                <div class="comment-item">
+                    <div class="comment-avatar"><i class="fas fa-user"></i></div>
+                    <div class="comment-content">
+                        <span class="comment-name">辰辰妈妈 <span class="comment-time">2分钟前</span></span>
+                        <p class="comment-text">孩子特别喜欢遇“稻”一粒米的课程，回家一直讲水稻的故事！</p>
+                        <a href="#" class="comment-reply">回复</a>
+                    </div>
+                </div>
+                <div class="comment-item">
+                    <div class="comment-avatar"><i class="fas fa-user"></i></div>
+                    <div class="comment-content">
+                        <span class="comment-name">果果爸爸 <span class="comment-time">昨天</span></span>
+                        <p class="comment-text">社区环境很好，志愿者老师很耐心。希望多开周末班。</p>
+                        <a href="#" class="comment-reply">回复</a>
+                    </div>
+                </div>
+            </div>
+            <div class="comment-input">
+                <input type="text" placeholder="写评论...">
+                <button><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item active"><i class="fas fa-building"></i>社区</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面3: 课程详情 (遇“稻”一粒米) + 评论 -->
+    <div class="page" id="page-course-detail">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>遇“稻”一粒米</h2>
+        </div>
+        <div style="padding:20px;">
+            <div style="background:#ffefef; border-radius:30px; height:180px; display:flex; align-items:center; justify-content:center; font-size:70px; color:#E53935;">🌾</div>
+            <h3 style="margin:20px 0 10px;">课程介绍</h3>
+            <p>通过水稻生长过程，让孩子了解粮食的来之不易，动手制作稻谷模型，培养劳动意识。属于“文明共生”板块，已服务超3000人次。</p>
+            <h3 style="margin:20px 0 10px;">📅 开课时间</h3>
+            <p>2月2日-6日 上午10:30-12:00 (共5天)</p>
+            <h3 style="margin:20px 0 10px;">👥 适合年级</h3>
+            <p>1-3年级</p>
+            <button class="btn-large" onclick="showPage('page-signup')">立即报名</button>
+
+            <h3 style="margin: 30px 0 15px; color:#E53935;">💬 课程评论 (8)</h3>
+            <div class="comment-section">
+                <div class="comment-item">
+                    <div class="comment-avatar"><i class="fas fa-user"></i></div>
+                    <div class="comment-content">
+                        <span class="comment-name">乐乐妈妈 <span class="comment-time">30分钟前</span></span>
+                        <p class="comment-text">课程设计很用心，孩子回来还画了水稻生长图！</p>
+                        <a href="#" class="comment-reply">回复</a>
+                    </div>
+                </div>
+            </div>
+            <div class="comment-input">
+                <input type="text" placeholder="写评论...">
+                <button><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item active"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面4: 报名页 -->
+    <div class="page" id="page-signup">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-course-detail')"></i>
+            <h2>填写报名信息</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="form-group">
+                <label>孩子姓名</label>
+                <input type="text" placeholder="如 乐乐" value="乐乐">
+            </div>
+            <div class="form-group">
+                <label>年级</label>
+                <select>
+                    <option>1年级</option><option>2年级</option><option>3年级</option><option>4年级</option><option>5年级</option><option>6年级</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>家长电话</label>
+                <input type="tel" placeholder="手机号码" value="138****1234">
+            </div>
+            <div class="form-group">
+                <label>托管点</label>
+                <input type="text" value="琴台青少年空间" readonly style="background:#f5f5f5;">
+            </div>
+            <div class="form-group">
+                <label>课程</label>
+                <input type="text" value="遇“稻”一粒米 (2月2日-6日)" readonly style="background:#f5f5f5;">
+            </div>
+            <button class="btn-large" onclick="showPage('page-signup-success')">提交报名</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面5: 报名成功 -->
+    <div class="page" id="page-signup-success">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>报名成功</h2>
+        </div>
+        <div style="padding:20px; text-align:center;">
+            <i class="fas fa-check-circle" style="font-size:80px; color:#4caf50; margin:30px 0;"></i>
+            <h3>恭喜！报名成功</h3>
+            <p style="color:#666; margin:15px 0;">您已成功报名《遇“稻”一粒米》课程</p>
+            <button class="btn-large" onclick="showPage('page-my-signup')">查看我的报名</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面6: 我的报名 -->
+    <div class="page" id="page-my-signup">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>我的报名</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="card" style="margin:0 0 16px 0;">
+                <div style="display:flex; gap:15px;">
+                    <div style="background:#ffefef; width:60px; height:60px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:28px;">🌾</div>
+                    <div>
+                        <h4>遇“稻”一粒米</h4>
+                        <p>琴台青少年空间 · 2月2日-6日</p>
+                        <span class="badge">已报名</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin:0;">
+                <div style="display:flex; gap:15px;">
+                    <div style="background:#ffefef; width:60px; height:60px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:28px;">🍡</div>
+                    <div>
+                        <h4>榴光溢彩 籽籽同心</h4>
+                        <p>青和居社区 · 2月4日</p>
+                        <span class="badge">待审核</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item active"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面7: 志愿者首页 -->
+    <div class="page" id="page-volunteer">
+        <div class="app-header">
+            <div class="greeting">
+                <i class="fas fa-smile"></i> 下午好, 小雅老师
+            </div>
+            <div class="sub"><i class="fas fa-map-marker-alt"></i> 琴台青少年空间</div>
+            <div class="icons">
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+        <div style="padding:20px;">
+            <h3 style="color:#E53935;">今日课程</h3>
+            <div class="card" style="margin-top:10px;" onclick="showPage('page-checkin')">
+                <div style="display:flex; justify-content:space-between;">
+                    <div><h4>遇“稻”一粒米</h4><span>10:30-12:00 · 2月2日</span></div>
+                    <i class="fas fa-chevron-right" style="color:#E53935;"></i>
+                </div>
+            </div>
+            <div class="card" onclick="showPage('page-checkin')">
+                <div style="display:flex; justify-content:space-between;">
+                    <div><h4>非遗剪纸</h4><span>14:30-16:00 · 2月2日</span></div>
+                    <i class="fas fa-chevron-right" style="color:#E53935;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('page-volunteer')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-checkin')"><i class="fas fa-check-circle"></i>签到</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面8: 签到页 -->
+    <div class="page" id="page-checkin">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-volunteer')"></i>
+            <h2>签到 · 遇“稻”一粒米</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="student-item">
+                <div class="student-name"><i class="fas fa-child"></i> 李诗棋</div>
+                <button class="sign-btn" onclick="toggleSign(this)">签到</button>
+            </div>
+            <div class="student-item">
+                <div class="student-name"><i class="fas fa-child"></i> 汪俊琪</div>
+                <button class="sign-btn" onclick="toggleSign(this)">签到</button>
+            </div>
+            <div class="student-item">
+                <div class="student-name"><i class="fas fa-child"></i> 汤柯轩</div>
+                <button class="sign-btn" onclick="toggleSign(this)">签到</button>
+            </div>
+            <div class="student-item">
+                <div class="student-name"><i class="fas fa-child"></i> 黄瑞峰</div>
+                <button class="sign-btn" onclick="toggleSign(this)">签到</button>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-volunteer')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item active"><i class="fas fa-check-circle"></i>签到</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面9: 动态页 (含评论) -->
+    <div class="page" id="page-dynamic">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>活动动态</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="card" style="display:flex; gap:15px;">
+                <img src="#" style="width:70px; height:70px; background:#ffcdd2; border-radius:25px;" alt="photo">
+                <div>
+                    <h4>后湖街道·石榴生长排序课</h4>
+                    <p>李诗棋、汪俊琪等小朋友的作品</p>
+                    <span class="badge">3张照片</span>
+                    <div style="margin-top:8px;"><i class="fas fa-heart" style="color:#E53935;"></i> 24  <i class="fas fa-comment" style="margin-left:15px;"></i> 5</div>
+                </div>
+            </div>
+            <div class="card" style="display:flex; gap:15px;">
+                <img src="#" style="width:70px; height:70px; background:#ffcdd2; border-radius:25px;" alt="photo">
+                <div>
+                    <h4>宝安社区·遇“稻”一粒米</h4>
+                    <p>孩子们在绘制稻谷生长图</p>
+                    <span class="badge">5张照片</span>
+                    <div style="margin-top:8px;"><i class="fas fa-heart" style="color:#E53935;"></i> 42  <i class="fas fa-comment" style="margin-left:15px;"></i> 8</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 20px 0 10px; color:#E53935;">最新评论</h3>
+            <div class="comment-item">
+                <div class="comment-avatar"><i class="fas fa-user"></i></div>
+                <div class="comment-content">
+                    <span class="comment-name">社区王老师 <span class="comment-time">10分钟前</span></span>
+                    <p class="comment-text">感谢家长们的认可，我们会继续努力！</p>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item active"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面10: 个人中心 -->
+    <div class="page" id="page-profile">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>个人中心</h2>
+        </div>
+        <div style="padding:20px; text-align:center;">
+            <i class="fas fa-user-circle" style="font-size:90px; color:#E53935; margin:20px;"></i>
+            <h3>乐乐妈妈</h3>
+            <p>138****1234</p>
+            <div class="card" style="text-align:left;">
+                <p><i class="fas fa-child"></i> 我的孩子：乐乐（2年级）</p>
+                <p><i class="fas fa-clock"></i> 报名课程：2门</p>
+                <p><i class="fas fa-heart"></i> 收藏：3个社区</p>
+            </div>
+            <button class="btn-small-outline" style="width:100%; margin-top:20px;" onclick="showPage('page-volunteer')">切换志愿者模式</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item" onclick="showPage('page-course-list')"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item active"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面11: 社区列表 -->
+    <div class="page" id="page-community-list">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>全部托管点</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="community-row" onclick="showPage('page-community-detail')">
+                <div class="community-avatar">🏫</div>
+                <div><h4>琴台青少年空间</h4><p>建桥街道毛家堤77号</p></div>
+            </div>
+            <div class="community-row" onclick="showPage('page-community-detail')">
+                <div class="community-avatar">🏘️</div>
+                <div><h4>青和居青少年空间</h4><p>工人村街道青和居社区</p></div>
+            </div>
+            <div class="community-row" onclick="showPage('page-community-detail')">
+                <div class="community-avatar">🏡</div>
+                <div><h4>宝安青少年空间</h4><p>南湖街道恒安路75号</p></div>
+            </div>
+            <div class="community-row" onclick="showPage('page-community-detail')">
+                <div class="community-avatar">🏢</div>
+                <div><h4>惠民苑青少年空间</h4><p>永丰街道惠民苑小区</p></div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item active"><i class="fas fa-building"></i>社区</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面12: 课程列表 (展示120+课程) -->
+    <div class="page" id="page-course-list">
+        <div class="detail-header">
+            <i class="fas fa-arrow-left" onclick="showPage('page-home')"></i>
+            <h2>所有课程</h2>
+        </div>
+        <div class="grid-2">
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-seedling"></i><span>遇“稻”一粒米</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-cut"></i><span>非遗剪纸</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-flask"></i><span>空气炮实验</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-hand-holding-heart"></i><span>榴光溢彩 籽籽同心</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-calculator"></i><span>神机妙“算”</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-puzzle-piece"></i><span>神奇的七巧板</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-leaf"></i><span>二十四节气</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-mountain"></i><span>“失控”的大山</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-dragon"></i><span>寻访丝绸之路</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-drumstick-bite"></i><span>回味无穷的红薯</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-egg"></i><span>咸蛋超人变身记</span></div>
+            <div class="grid-item" onclick="showPage('page-course-detail')"><i class="fas fa-ship"></i><span>大禹“治”水</span></div>
+        </div>
+        <p style="text-align:center; color:#E53935; margin:10px;">... 共120+课程</p>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showPage('page-home')"><i class="fas fa-home"></i>首页</div>
+            <div class="nav-item active"><i class="fas fa-book-open"></i>课程</div>
+            <div class="nav-item" onclick="showPage('page-dynamic')"><i class="fas fa-heart"></i>动态</div>
+            <div class="nav-item" onclick="showPage('page-profile')"><i class="fas fa-user"></i>我的</div>
+        </div>
+    </div>
+
+    <!-- 页面13: 评论详情示例 (可扩展) 这里不再重复添加，已有评论功能 -->
+</div>
+
+<script>
+    // 页面切换函数
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // 签到按钮切换
+    function toggleSign(btn) {
+        if (btn.classList.contains('signed')) {
+            btn.classList.remove('signed');
+            btn.innerText = '签到';
+        } else {
+            btn.classList.add('signed');
+            btn.innerText = '已签到';
+        }
+    }
+
+    // 确保所有导航点击事件正常（已内联onclick）
+</script>
+</body>
+</html>
